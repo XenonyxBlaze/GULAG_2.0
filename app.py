@@ -1,32 +1,57 @@
 import sqlcon
 from tkinter import *
+from PIL import ImageTk,Image
 
 root = Tk()
+root.iconbitmap("gulag.ico")
 root.title("Gulag2.0 [Test]")
 
-def connect(pwd):
-    if sqlcon.con(pwd):
-        outp = Label(root, text="Connected", padx=25,pady=20)
-        outp.grid(row=3, columnspan=4)
-        e.delete(0, END)
-        e.insert(0, "Already connected")
+
+#Function Definitions
+#----------------------------------------------------
+
+def conect():
+    if sqlcon.con(pswrd.get()):
+        pswrd.grid_forget()
+        con_btn.grid_forget()
+        dispConStatus(True)
+        con_status.grid(row=2, sticky=W+E, columnspan=3, pady=10)
     else:
-        outp = Label(root, text="Wrong password", padx=25,pady=20)
-        outp.grid(row=3, columnspan=4)
-        print('Wrong password')
-        root.quit()
+        dispConStatus(False)
+        con_status.grid(row=2, sticky=W+E, columnspan=3, pady=10)
 
-wlcm = Label(root, text="Welcome to GULAG 2.0", padx = 30, pady = 10)
-pwd = Label(root, text="Enter root password")
-e = Entry(root)
-e.grid(row=1, column = 0)
+def dispConStatus(bool):
+    global con_status
+    if bool:
+        con_status = Label(root,text="Connected Successfully",fg="green", bd=2, relief=SUNKEN, anchor=W)
+    else:
+        con_status = Label(root,text="Error in connection",fg="red", bd=2, relief=SUNKEN, anchor=W)
 
-butn = Button(root, text="Connect", padx=10, command = lambda: connect(str(e.get())))
+#----------------------------------------------------
 
-wlcm.grid(row=0,column=0,columnspan=2)
-pwd.grid(row=1,column=0)
-e.grid(row=1,column=1)
-butn.grid(row=2,column=0)
 
+
+#GUI DEFINATIONS
+#----------------------------------------------------
+
+wlcm = Label(root, text="Welcome to GULAG 2.0 (testing ver.)")
+logo_def = ImageTk.PhotoImage(Image.open("Gulag.png"))
+logo = Label(image= logo_def)
+
+pswrd = Entry(root)
+pswrd.insert(0,"Enter password")
+
+con_btn = Button(root, text="Connect", command=conect)
+
+#----------------------------------------------------
+
+#GUI grid display
+#----------------------------------------------------
+
+wlcm.grid(row=0,column=0)
+logo.grid(row=0,column=1)
+pswrd.grid(row=1,column=0,padx=10)
+con_btn.grid(row=1,column=1)
+#----------------------------------------------------
 
 root.mainloop()
