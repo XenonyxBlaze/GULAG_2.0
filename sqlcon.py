@@ -1,4 +1,9 @@
+
 import mysql.connector as mycon
+
+class conStatus:
+    con_bool = bool()
+    con_err = ""
 
 def con(p):
     try:
@@ -6,9 +11,12 @@ def con(p):
         con = mycon.connect(host='localhost', user = 'root' ,password = p)
         global cursor
         cursor = con.cursor()
-        return True
-    except:
-        return False
+        conStatus.con_bool=True
+        return conStatus
+    except mycon.Error as exc:
+        conStatus.con_bool=False
+        conStatus.con_err=exc.msg
+        return conStatus
 
 def show():
     try:
