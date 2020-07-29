@@ -2,13 +2,13 @@
 import mysql.connector as mycon
 
 class conStatus:
-    con_bool = bool()
-    con_err = ""
+    con_bool = bool(False)
+    con_err = "Not Connected"
 
-def con(p):
+def conect(h,u,p):
     try:
         global con
-        con = mycon.connect(host='localhost', user = 'root' ,password = p)
+        con = mycon.connect(host=h, user = u,password = p)
         global cursor
         cursor = con.cursor()
         conStatus.con_bool=True
@@ -18,13 +18,16 @@ def con(p):
         conStatus.con_err=exc.msg
         return conStatus
 
-def show():
+def returnDbList():
     try:
+        dbList=[]
         cursor.execute('show databases')
         for i in cursor:
-            print(i)
-    except:
-        print('Error in executing the command')
+            dbList.append(i[0])
+        return dbList
+    except mycon.Error as e:
+        return e.msg
+
 def create(name):
     try:
         cursor.execute('create database'+' '+name)
