@@ -1,56 +1,127 @@
 
 import mysql.connector as mycon
 
-class conStatus:
-    con_bool = bool(False)
-    con_err = "Not Connected"
+class boolMsgClass:
+    tf = bool(False)
+    Msg = "Not Connected"
 
-def conect(h,u,p):
+def connectSQL(h,u,p):
     try:
+
         global con
         con = mycon.connect(host=h, user = u,password = p)
+
         global cursor
         cursor = con.cursor()
-        conStatus.con_bool=True
-        return conStatus
+
+        boolMsgClass.tf=True
+
+        return boolMsgClass
+
     except mycon.Error as exc:
-        conStatus.con_bool=False
-        conStatus.con_err=exc.msg
-        return conStatus
+
+        boolMsgClass.tf=False
+        boolMsgClass.Msg=exc.msg
+        
+        return boolMsgClass
+
+'''
+def createGulag():
+    try:
+        cursor.execute("CREATE DATABASE gulag")
+        return 'Created Database'
+    except mycon.Error as exc:
+        return exc.msg
+
+
+def createSampleTable():
+    try:
+
+        cursor.execute("CREATE TABLE sampletb(\
+            uid INT(10),\
+            uName VARCHAR(10),\
+            uAdd VARCHAR(10),\
+            uMail VARCHAR(10)\
+            )")
+        return "Created Table"
+    except mycon.Error as exc:
+        return exc.msg
+
+
+def downloadDb():
+    return
+
+'''
+
 
 def returnDbList():
     try:
         dbList=[]
-        cursor.execute('show databases')
+        cursor.execute('show databases') 
         for i in cursor:
             dbList.append(i[0])
         return dbList
     except mycon.Error as e:
-        return e.msg
+        return [e.msg]
 
-def create(name):
+def returnTbList():
+    try:
+        tbList=[]
+        cursor.execute('show tables') 
+        for i in cursor:
+            tbList.append(i)
+        return tbList
+    except mycon.Error as exc:
+        return [exc.msg]
+
+def returnTbdList(tName):
+    try:
+        tbdList=[]
+        cursor.execute('desc '+tName) 
+        for i in cursor:
+            tbdList.append(i)
+        return tbdList
+    except mycon.Error as exc:
+        return [exc.msg]
+
+
+
+def crDB(name):
     try:
         cursor.execute('create database'+' '+name)
-        print('database successfully created')
-    except:
-        print('Error in executing command')
+        tableCrCheck = returnTbList()
+        if name in tableCrCheck:
+            boolMsgClass.tf = True
+            boolMsgClass.Msg = "Created"
+            return boolMsgClass
+        else:
+            boolMsgClass.tf = False
+            boolMsgClass.Msg = "Error"
+            return boolMsgClass
+    except mycon.Error as exc:
+        boolMsgClass.tf = False
+        boolMsgClass.Msg = exc.msg
+        return boolMsgClass
 
 
 def use(name):
     try:
         cursor.execute('use'+' '+name)
-        print('Now using databse'+' '+name)
-    except:
-        print('Error in executing command')
+        return 'Now using database'+' '+name
+    except mycon.Error as exc:
+        return exc.msg
 
 
-def drop(name):
+def dropDB(name):
     try:
         cursor.execute('drop database'+' '+name)
-        print('Successfully deleted database'+' '+name)
-    except:
-        print('Error in executing command')
-
+        boolMsgClass.tf = True
+        boolMsgClass.Msg = "Created Database "+name
+        return boolMsgClass
+    except mycon.Error as exc:
+        boolMsgClass.tf = False
+        boolMsgClass.Msg = exc.msg
+        return boolMsgClass
 
 def crT(name):
     try:
@@ -91,3 +162,13 @@ def deltab(name):
         print('Successfully deleted table ',name)
     except:
         print('Error in executing command')
+
+def showall(tName):
+    try:
+        cursor.execute('SELECT * FROM '+tName)
+        recList = []
+        for i in cursor:
+            recList.append(i)
+        return recList
+    except mycon.Error as e:
+        return [e.msg]
