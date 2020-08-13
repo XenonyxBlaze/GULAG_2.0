@@ -25,35 +25,6 @@ def connectSQL(h,u,p):
         
         return boolMsgClass
 
-'''
-def createGulag():
-    try:
-        cursor.execute("CREATE DATABASE gulag")
-        return 'Created Database'
-    except mycon.Error as exc:
-        return exc.msg
-
-
-def createSampleTable():
-    try:
-
-        cursor.execute("CREATE TABLE sampletb(\
-            uid INT(10),\
-            uName VARCHAR(10),\
-            uAdd VARCHAR(10),\
-            uMail VARCHAR(10)\
-            )")
-        return "Created Table"
-    except mycon.Error as exc:
-        return exc.msg
-
-
-def downloadDb():
-    return
-
-'''
-
-
 def returnDbList():
     try:
         dbList=[]
@@ -69,30 +40,28 @@ def returnTbList():
         tbList=[]
         cursor.execute('show tables') 
         for i in cursor:
-            tbList.append(i)
+            tbList.append(i[0])
         return tbList
     except mycon.Error as exc:
         return [exc.msg]
 
-def returnTbdList(tName):
+def returnAllColList(tName):
     try:
-        tbdList=[]
-        cursor.execute('desc '+tName) 
+        colList=[]
+        cursor.execute('desc '+tName)
         for i in cursor:
-            tbdList.append(i)
-        return tbdList
+            colList.append(i[0])
+        return colList
     except mycon.Error as exc:
         return [exc.msg]
-
-
 
 def crDB(name):
     try:
         cursor.execute('create database'+' '+name)
-        tableCrCheck = returnTbList()
-        if name in tableCrCheck:
+        databaseCrCheck = returnDbList()
+        if name in databaseCrCheck:
             boolMsgClass.tf = True
-            boolMsgClass.Msg = "Created"
+            boolMsgClass.Msg = "Created Database "+name
             return boolMsgClass
         else:
             boolMsgClass.tf = False
@@ -116,7 +85,7 @@ def dropDB(name):
     try:
         cursor.execute('drop database'+' '+name)
         boolMsgClass.tf = True
-        boolMsgClass.Msg = "Created Database "+name
+        boolMsgClass.Msg = "Deleted Database "+name
         return boolMsgClass
     except mycon.Error as exc:
         boolMsgClass.tf = False
@@ -151,17 +120,25 @@ def crT(name):
 
 def trun(name):
     try:
-        cursor.execute('truncate table'+' '+name)
-        print("Successfully deleted all records from ",name)
+        cursor.execute('truncate table '+name)
+        boolMsgClass.tf=True
+        boolMsgClass.Msg='Successfully truncated table '+name
+        return boolMsgClass
     except:
-        print('Error in executing command')
+        boolMsgClass.tf=False
+        boolMsgClass.msg=e.msg
+        return boolMsgClass
 
 def deltab(name):
     try:
-        cursor.execute('DROP table'+' '+name)
-        print('Successfully deleted table ',name)
-    except:
-        print('Error in executing command')
+        cursor.execute('DROP table '+name)
+        boolMsgClass.tf=True
+        boolMsgClass.Msg='Successfully deleted table '+name
+        return boolMsgClass
+    except mycon.Error as e:
+        boolMsgClass.tf=False
+        boolMsgClass.msg=e.msg
+        return boolMsgClass
 
 def showall(tName):
     try:
@@ -172,3 +149,17 @@ def showall(tName):
         return recList
     except mycon.Error as e:
         return [e.msg]
+
+def givcommand(command):
+    try:
+        cursor.execute(str(command))
+        boolMsgClass.tf=True
+        li =[]
+        for i in cursor:
+            li.append(i)
+        boolMsgClass.Msg=str(li)
+        return boolMsgClass
+    except mycon.Error as e:
+        boolMsgClass.tf = False
+        boolMsgClass.Msg = e.msg
+        return boolMsgClass
