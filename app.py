@@ -340,7 +340,7 @@ def createTableFunc(*args):
  
         col_type = ttk.Combobox(addColFrame,textvariable=col_type_var,state='readonly')
         col_type.grid(row=1,column=1,sticky=(S,W,E,N),pady=5)
-        col_type['values']=('Integer','Decimal','Char','Varchar','Date','Time','Boolean')
+        col_type['values']=('Integer','Decimal','Char','Varchar','Date','Time','Boolean','Date')
         col_type.bind('<<ComboboxSelected>>',selectType)
 
         global col_null_var
@@ -406,6 +406,8 @@ def createTableFunc(*args):
         ttk.Label(keyFrame,text='Primary Key',style='smolLight.TLabel').grid(row=0,column=0)
         prim = ttk.Combobox(keyFrame,textvariable=prim_var,values=colsList,state='readonly')
         prim.grid(row=0,column=1,sticky=(S,W,E,N),pady=10)
+
+        ttk.Button(keyFrame,text='OK',command=keyDefWin.destroy).grid(row=1,column=1)
 
         crTWin.wait_window(keyDefWin)
     
@@ -545,6 +547,74 @@ def devWinCall():
 
 
 
+
+#Add Record
+#----------------------------------------------------------------------------------------------------------------------
+def addRecordCall(*args):
+    try:
+        messagebox.showinfo('WARNING','This module is unable to detect and fix user errors so kindly use it with care\nCheck out the Documentation by clicking the help menu button if this is your first time')
+        addRecWin = Toplevel()
+        addRecWin.title('Add Record')
+        addRecBtn['state'] = 'disabled'
+        addRecWin.iconbitmap('gulag.ico')
+
+        addRecFrame = ttk.Frame(addRecWin,style='dark.TFrame')
+        addRecFrame.grid(row=0,column=0,sticky=(N,S,W,E))
+
+        x = sqlcon.returnAllColList(tb_var.get())
+        recEntries = []
+        c=0
+        for i in x:
+            ttk.Label(addRecFrame,text=str(i),style='smolDark.TLabel').grid(row=c,column=0,sticky=(W,E))
+            e = ttk.Entry(addRecFrame)
+            e.grid(row=c,column=1,padx=10,pady=10,sticky=(E,W))
+            e.focus()
+            recEntries.append(e)
+            c+=1
+
+        def sendAddComm(*args):
+            values = ''
+            for e in recEntries:
+                values += str(e.get())+','
+
+            x = sqlcon.addRecFunc(tb_var.get(),values[:-1])
+            if x.tf:
+                messagebox.showinfo('Success',x.Msg)
+                addRecWin.destroy()
+                actuallyUpdateRecords()
+            else:
+                messagebox.showerror('Error',x.Msg)
+                recEntries[-1].focus()
+                return
+
+        ttk.Button(addRecFrame,text='ADD',style='greenButtons.TButton',command = sendAddComm).grid(row=c,column=1,sticky=(E,W))
+
+        addRecWin.columnconfigure(0,weight=1)
+        addRecWin.columnconfigure(1,weight=1)
+        addRecWin.rowconfigure(0,weight=1)
+        addRecWin.rowconfigure(1,weight=1)
+
+        root.wait_window(addRecWin)
+        try:
+            addRecBtn['state']='normal'
+        except:
+            return
+
+    except:
+        addRecWin.destroy()
+        messagebox.showerror('ERROR','Something went wrong!!\nDid you select a table ?¿')
+        addRecBtn['state']='normal'
+#----------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
 #Functions
 #----------------------------------------------------------------------------------------------------------------------
 def selectDB(*args):
@@ -604,7 +674,7 @@ def tbTruncFunc(*args):
             x = sqlcon.trun(tb_listbox.get(tb_listbox.curselection()))
             if x.tf:
                 messagebox.showinfo('Success',x.Msg)
-                allRecsShow()
+                updateRecords()
             else:
                 messagebox.showerror('Error',x.Msg)
         except:
@@ -629,25 +699,47 @@ def clearRecs(*args):
     except:
         messagebox.showerror("ERROR",'Can\'t clear')
 
-def updateColumns(*args):
+def updateRecordTree(*args):
     try:
-        x = sqlcon.returnAllColList(tb_listbox.get(tb_listbox.curselection()))
+        queryColS.set('')
+        queryVar.set('')
+        x = sqlcon.returnAllColList(tb_var.get())
         recTree['columns']=tuple(x)
+        queryCol['values']=tuple(x)
         counter=1
         for i in x:
             recTree.heading(str(i),text=str(i),anchor='sw')
     except:
         messagebox.showerror("Error","Something Went Wrong \nPlease Report the bug")
 
-def allRecsShow(*args):
+def actuallyUpdateRecords(*args):
+    clearRecs()
+    updateRecordTree()
+    x = sqlcon.showall(tb_var.get())
+    for i in x:
+        recTree.insert('','end',values=tuple(i))
+
+def updateRecords(*args):
     try:
-        clearRecs()
-        updateColumns()
-        x = sqlcon.showall(tb_listbox.get(tb_listbox.curselection()))
-        for i in x:
-            recTree.insert('','end',values=tuple(i))
+        global tb_var
+        tb_var = StringVar()
+        tb_var.set(tb_listbox.get(tb_listbox.curselection()))
+        actuallyUpdateRecords()
     except:
-        messagebox.showerror('Error','Something went wrong \n Please report this bug')
+        messagebox.showerror('Error','Something went wrong \nPlease report this bug')
+
+def queryCall(*args):
+    try:
+        x = sqlcon.query(tb_var.get(),queryColS.get(),queryVar.get())
+        if x.tf:
+            clearRecs()
+            updateRecordTree()
+            for i in x.Msg:
+                recTree.insert('','end',values=tuple(i))
+        else:
+            messagebox.showerror('ERROR',x.Msg)
+    except:
+        messagebox.showerror('ERROR','Something went wrong \nPlease report this bug')
 
 #----------------------------------------------------------------------------------------------------------------------
 
@@ -771,8 +863,8 @@ tb_listbox.grid(row=0,column=0,sticky=(N,E,W,S))
 tbScroller = ttk.Scrollbar(tb_frame,orient=VERTICAL,command=tb_listbox.yview)
 tbScroller.grid(row=0,column=1,sticky=(N,S,W,E))
 tb_listbox['yscrollcommand']=tbScroller.set
-tb_listbox.bind('<Double-1>', allRecsShow)
-tb_listbox.bind('<Return>', allRecsShow)
+tb_listbox.bind('<Double-1>', updateRecords)
+tb_listbox.bind('<Return>', updateRecords)
 
 tb_console = ttk.Frame(tb_frame)
 tb_console.grid(row=1,column=0,sticky=(N,E,W,S))
@@ -804,25 +896,72 @@ mainApp.grid(row=1,column=0,sticky=(N,E,W,S))
 records_tab = ttk.Frame(mainApp)
 mainApp.add(records_tab,text='Records')
 
-recTree = ttk.Treeview(records_tab,selectmode='browse',show='headings')
-recTree.column('#0',width=0)
-recTree.grid(row=1,column=0,sticky=(N,S,W,E))
+recQuery = ttk.Frame(records_tab,style='light.TFrame',padding='3 3 3 3')
+recQuery.grid(row=0,column=0,columnspan=3,sticky=(S,W,E,N))
 
-treeScroll = ttk.Scrollbar(records_tab,orient=VERTICAL,command=recTree.yview)
-treeScroll.grid(row=1,column=1,sticky=(N,S))
+global queryColS
+queryColS = StringVar()
+ttk.Label(recQuery,text='Search By:  ',style='smolLight.TLabel').grid(row=0,column=0,sticky=(S,W,E,N))
+queryCol = ttk.Combobox(recQuery,textvariable=queryColS,state='readonly')
+queryCol.grid(row=0,column=1,sticky=(W,E))
+
+global queryVar
+queryVar=StringVar()
+ttk.Label(recQuery,text='Search: ',style='smolLight.TLabel').grid(row=0,column=0,sticky=(S,W,E,N))
+ttk.Entry(recQuery,textvariable=queryVar).grid(row=0,column=3,sticky=(W,E),padx=10)
+
+qicon = ImageTk.PhotoImage(Image.open('search.png'))
+ttk.Button(recQuery,image=qicon,style='greenButtons.TButton',command=queryCall).grid(row=0,column=4,sticky=W)
+
+#recColSelect = ttk.Frame(records_tab,style='dark.TFrame')
+#recColSelect.grid(row=1,column=0,sticky=(S,W,E,N))
+#ttk.Label(recColSelect,text='Select Columns :\t',style='smolLight.TLabel').grid(row=0,column=0,sticky=(S,W,E,N))
+
+
+
+
+
+
+
+recFrame = ttk.Frame(records_tab,style='light.TFrame',padding='3 3 3 3')
+recFrame.grid(row=1,column=1,sticky=(N,S,W,E))
+
+recTree = ttk.Treeview(recFrame,selectmode='browse',show='headings')
+recTree.column('#0',width=0)
+recTree.grid(row=0,column=0,sticky=(N,S,W,E))
+
+treeScroll = ttk.Scrollbar(recFrame,orient=VERTICAL,command=recTree.yview)
+treeScroll.grid(row=0,column=1,sticky=(N,S))
 recTree['yscrollcommand']=treeScroll.set
 
-treeHScroll = ttk.Scrollbar(records_tab,orient=HORIZONTAL,command=recTree.xview)
-treeHScroll.grid(row=2,column=0,sticky=(E,W))
+treeHScroll = ttk.Scrollbar(recFrame,orient=HORIZONTAL,command=recTree.xview)
+treeHScroll.grid(row=1,column=0,sticky=(E,W))
 recTree['xscrollcommand']=treeHScroll.set
 
 
 
 
 
+recConsole = ttk.Frame(records_tab,style='dark.TFrame')
+recConsole.grid(row=1,column=2,sticky=(N,S,W,E))
 
-table_desc_frame = ttk.Frame(mainApp)
-mainApp.add(table_desc_frame,text='Table Description')
+addRecBtn = ttk.Button(recConsole,text='ADD RECORD',style='greenButtons.TButton',command=addRecordCall)
+addRecBtn.grid(row=0,column=0,pady=10,padx=10,sticky=(N,S,W,E))
+
+delRecBtn = ttk.Button(recConsole,text='DELETE RECORD',style='redButtons.TButton')
+delRecBtn.grid(row=1,column=0,pady=10,padx=10,sticky=(N,S,W,E))
+
+upRecBtn = ttk.Button(recConsole,text='UPDATE RECORD',style='blueButtons.TButton')
+upRecBtn.grid(row=2,column=0,pady=10,padx=10,sticky=(N,S,W,E))
+
+
+
+
+
+
+
+tbEditFrame = ttk.Frame(mainApp)
+mainApp.add(tbEditFrame,text='Edit Table')
 #----------------------------------------------------------------------------------------------------------------------
 
 
@@ -851,8 +990,14 @@ top_pane.columnconfigure(1, weight=1)
 db_frame.columnconfigure(0,weight=1)
 tb_frame.columnconfigure(0,weight=1)
 
+records_tab.rowconfigure(0,weight=1)
 records_tab.columnconfigure(0,weight=1)
-records_tab.rowconfigure(1,weight=1)
+records_tab.columnconfigure(1,weight=98)
+records_tab.columnconfigure(2,weight=1)
+records_tab.rowconfigure(1,weight=99)
+
+recFrame.columnconfigure(0,weight=1)
+recFrame.rowconfigure(0,weight=1)
 #----------------------------------------------------------------------------------------------------------------------
 
 

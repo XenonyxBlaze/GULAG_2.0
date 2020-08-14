@@ -163,3 +163,28 @@ def givcommand(command):
         boolMsgClass.tf = False
         boolMsgClass.Msg = e.msg
         return boolMsgClass
+
+def query(table,column,condition):
+    try:
+        cursor.execute('SELECT * FROM '+table+' WHERE '+column+' LIKE \'%'+condition+'%\'')
+        li =[]
+        for i in cursor:
+            li.append(i)
+        boolMsgClass.tf=True
+        boolMsgClass.Msg=li
+        return boolMsgClass
+    except mycon.Error as e:
+        boolMsgClass.tf = False
+        boolMsgClass.Msg = e.msg
+        return boolMsgClass
+
+def addRecFunc(table,values):
+    try:
+        cursor.execute('Insert into '+table+' values('+values+')')
+        boolMsgClass.tf=True
+        boolMsgClass.Msg='Successfully added the record'
+        return boolMsgClass
+    except mycon.Error as e:
+        boolMsgClass.tf = False
+        boolMsgClass.Msg=e.msg
+        return boolMsgClass
