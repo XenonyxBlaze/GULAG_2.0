@@ -12,7 +12,7 @@ def connectSQL(h,u,p):
         con = mycon.connect(host=h, user = u,password = p)
 
         global cursor
-        cursor = con.cursor()
+        cursor = con.cursor(buffered=True)
 
         boolMsgClass.tf=True
 
@@ -154,10 +154,7 @@ def givcommand(command):
     try:
         cursor.execute(str(command))
         boolMsgClass.tf=True
-        li =[]
-        for i in cursor:
-            li.append(i)
-        boolMsgClass.Msg=str(li)
+        boolMsgClass.Msg=str(cursor.fetchall())
         return boolMsgClass
     except mycon.Error as e:
         boolMsgClass.tf = False
@@ -186,5 +183,66 @@ def addRecFunc(table,values):
         return boolMsgClass
     except mycon.Error as e:
         boolMsgClass.tf = False
+        boolMsgClass.Msg=e.msg
+        return boolMsgClass
+
+def returnColType(tb):
+    try:
+        cursor.execute('DESC '+tb)
+        boolMsgClass.tf=True
+        li=[]
+        for i in cursor:
+            li.append(i[1])
+        boolMsgClass.Msg=li
+        return boolMsgClass
+    except mycon.Error as e:
+        boolMsgClass.tf =False
+        boolMsgClass.Msg=e.msg
+        return boolMsgClass
+
+def returnNotNull(tb):
+    try:
+        cursor.execute('DESC '+tb)
+        li =[]
+        count=0
+        for i in cursor:
+            if i[2]=='NO':
+                li.append(count)
+            count+=1
+        boolMsgClass.tf = True
+        boolMsgClass.Msg = li
+        return boolMsgClass
+    except mycon.Error as e:
+        boolMsgClass.tf =False
+        boolMsgClass.Msg=e.msg
+        return boolMsgClass
+
+def returnPrimaryKey(tb):
+    try:
+        cursor.execute('DESC '+tb)
+        count=0
+        for i in cursor:
+            if i[3]=='PRI':
+                primaryKeyName = i[0]
+                break
+            count+=1
+        boolMsgClass.tf = True
+        boolMsgClass.Msg = [count,primaryKeyName]
+        return boolMsgClass
+    except mycon.Error as e:
+        boolMsgClass.tf =False
+        boolMsgClass.Msg=e.msg
+        return boolMsgClass
+
+def deleteRecord(tb,p,v):
+    try:
+        comand = 'DELETE FROM '+str(tb)+' WHERE '+str(p)+' LIKE \''+str(v)+'\''
+        print(comand)
+        cursor.execute(comand)
+        boolMsgClass.tf = True
+        boolMsgClass.Msg = 'Successfully deleted record!'
+        return boolMsgClass
+    except mycon.Error as e:
+        boolMsgClass.tf =False
         boolMsgClass.Msg=e.msg
         return boolMsgClass
