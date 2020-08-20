@@ -163,9 +163,10 @@ def givcommand(command):
 
 def query(table,column,condition):
     try:
-        cursor.execute('SELECT * FROM '+table+' WHERE '+column+' LIKE \'%'+condition+'%\'')
+        customCur = con.cursor()
+        customCur.execute('SELECT * FROM '+table+' WHERE '+column+' LIKE \'%'+condition+'%\'')
         li =[]
-        for i in cursor:
+        for i in customCur:
             li.append(i)
         boolMsgClass.tf=True
         boolMsgClass.Msg=li
@@ -244,5 +245,53 @@ def deleteRecord(tb,p,v):
         return boolMsgClass
     except mycon.Error as e:
         boolMsgClass.tf =False
+        boolMsgClass.Msg=e.msg
+        return boolMsgClass
+
+def returnMaxLengthCol(tb):
+    try:
+        lens=[]
+        x=returnAllColList(tb)
+        for i in x:
+            cursor.execute('SELECT '+i+' FROM '+tb)
+            curMax=len(str(i))
+            for j in cursor:
+                if len(str(j)) >= curMax:
+                    curMax=len(str(j))
+            lens.append(curMax)
+        boolMsgClass.tf=True
+        boolMsgClass.Msg=lens
+        return boolMsgClass
+    except mycon.Error as e:
+        boolMsgClass.tf=True
+        boolMsgClass.Msg=lens
+        return boolMsgClass
+'''
+connectSQL('localhost','root','toor')
+use('gulag')
+'''
+
+def testFunc():
+    try:
+        cursor.execute('SHOW DATABASES')
+        return True
+    except:
+        return False
+
+def commitall():
+    try:
+        cursor.execute('COMMIT')
+        return True
+    except:
+        return False
+
+def upRecFunc(table,values,prim,primvalue):
+    try:
+        cursor.execute('UPDATE '+table+' SET '+values[:-2]+' WHERE '+prim+' LIKE \''+primvalue+'\'')
+        boolMsgClass.tf=True
+        boolMsgClass.Msg='Successfully added the record'
+        return boolMsgClass
+    except mycon.Error as e:
+        boolMsgClass.tf = False
         boolMsgClass.Msg=e.msg
         return boolMsgClass

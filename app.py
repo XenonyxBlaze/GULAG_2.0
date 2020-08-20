@@ -34,6 +34,7 @@ from PIL import ImageTk,Image
 #Connection Window
 #----------------------------------------------------------------------------------------------------------------------
 def conWinCall():
+
     conCheckStatus = sqlcon.connectSQL('000','000','000')
     optionMenu.entryconfigure('Connect',state='disabled')
 
@@ -169,6 +170,11 @@ def docsWin():
 #Database Creation
 #----------------------------------------------------------------------------------------------------------------------
 def dbCrWinCall():
+
+    if not sqlcon.testFunc():
+        messagebox.showerror('ERROR','You\'re not connected to a server')
+        return
+
     dbCrWin = Toplevel()
     dbCrWin.title('Create Database')
     dbCrWin.iconbitmap('gulag.ico')
@@ -208,18 +214,25 @@ def dbCrWinCall():
 #Table Creation
 #----------------------------------------------------------------------------------------------------------------------        
 def createTableFunc(*args):
+
+    if not sqlcon.testFunc():
+        messagebox.showerror('ERROR','You\'re not connected to a server')
+        return
+
     global colDict
     colDict={}
 
     messagebox.showinfo('WARNING','This module is currently incapable of detecting and fixing user errors so kindly use it with caution')
     
-    crtbbtn['state']='disabled'
+    #crtbbtn['state']='disabled'
     
     crTWin = Toplevel()
     crTWin.title('Table Creation Wizard')
     crTWin.iconbitmap('gulag.ico')
     crTWin.geometry('600x600')
     
+    root.withdraw()
+
     crTFrame= ttk.Frame(crTWin,style='dark.TFrame')
     crTFrame.grid(row=0,column=0,sticky=(N,S,W,E))
 
@@ -451,7 +464,6 @@ def createTableFunc(*args):
             col_command = col_command
             col_comm = 'CREATE TABLE '+tabName.get()+'('+col_command+'PRIMARY KEY ('+prim_var.get()+'))'
             try:
-                print(col_comm)
                 x = sqlcon.givcommand(col_comm)
                 if x.tf:
                     messagebox.showinfo('Success','Table created successfully')
@@ -480,7 +492,8 @@ def createTableFunc(*args):
 
     root.wait_window(crTWin)
     try:
-        crtbbtn['state']='normal'
+        #crtbbtn['state']='normal'
+        root.deiconify()
     except:
         return
 #----------------------------------------------------------------------------------------------------------------------
@@ -561,8 +574,10 @@ def addRecordCall(*args):
     try:
         addRecWin = Toplevel()
         addRecWin.title('Add Record')
-        addRecBtn['state'] = 'disabled'
+        #addRecBtn['state'] = 'disabled'
         addRecWin.iconbitmap('gulag.ico')
+
+        root.withdraw()
 
         addRecFrame = ttk.Frame(addRecWin,style='dark.TFrame')
         addRecFrame.grid(row=0,column=0,sticky=(N,S,W,E))
@@ -613,12 +628,12 @@ def addRecordCall(*args):
                     e.focus()
                     return
                 else:
-                    if t[:7]==b'varchar' or t[:4]==b'char':
+                    if t[:7]==b'varchar' or t[:4]==b'char' or t[:7]=='varchar' or t[:4]=='char':
                         if not e.get()=='':
                             values += '\''+str(e.get())+'\''+','
                         else:
                             values += 'NULL,'
-                    elif t==b'date':
+                    elif t==b'date' or t=='date':
                         if not e.get()=='':
                             values+='\''+str(e.get())+'\''+','
                         else:
@@ -648,14 +663,16 @@ def addRecordCall(*args):
 
         root.wait_window(addRecWin)
         try:
-            addRecBtn['state']='normal'
+            #addRecBtn['state']='normal'
+            root.deiconify()
         except:
             return
 
     except:
         addRecWin.destroy()
         messagebox.showerror('ERROR','Something went wrong!!\nDid you select a table ?¿')
-        addRecBtn['state']='normal'
+        #addRecBtn['state']='normal'
+        root.deiconify()
 #----------------------------------------------------------------------------------------------------------------------
 
 
@@ -691,6 +708,155 @@ def delRecordCall(*args):
                 messagebox.showerror('Error',x.Msg)
         except:
             messagebox.showerror('ERROR','Could not detect primary key!! Aborting')
+    else:
+        messagebox.showinfo('WARNING','Be Careful of the buttons you touch')
+#----------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+#Update Record
+#----------------------------------------------------------------------------------------------------------------------
+
+def updateRecordCall(*args):
+    c = messagebox.askyesno('Delete Record','Are you sure you want to update the record?')
+    if c:
+        updateRecordWin = Toplevel()
+        updateRecordWin.title('UPDATE RECORD')
+        updateRecordWin.iconbitmap('gulag.ico')
+        updateRecordWin.columnconfigure(0,weight=1)
+        updateRecordWin.rowconfigure(0,weight=1)
+
+        root.withdraw()
+
+        updateFrame = ttk.Frame(updateRecordWin,padding='5 5 5 5',style='dark.TFrame')
+        updateFrame.grid(row=0,column=0,sticky=(S,W,E,N))
+
+
+        try:
+            columnList = sqlcon.returnAllColList(tb_var.get())
+            recEntries = []
+            c=0
+            for i in columnList:
+                ttk.Label(updateFrame,text=str(i),style='smolDark.TLabel').grid(row=c,column=0,sticky=(W,E))
+                e = ttk.Entry(updateFrame)
+                e.grid(row=c,column=1,padx=10,pady=10,sticky=(E,W))
+                e.focus()
+                recEntries.append(e)
+                c+=1
+            try:
+                x = sqlcon.returnPrimaryKey(tb_var.get())
+                if x.tf:
+                    primValue = recTree.item(recTree.selection()[0])['values'][x.Msg[0]]
+                    primName = x.Msg[1]
+                else:
+                    messagebox.showerror('Error',x.Msg)
+            except:
+                messagebox.showerror('ERROR','Did You select a record')
+                updateRecordWin.destroy()
+                root.deiconify()
+                return
+
+
+            try:
+                c=0
+                for entry in recEntries:
+
+                    entry.insert(0,recTree.item(recTree.selection()[0])['values'][c])
+                    c+=1
+            except:
+                messagebox.showerror('ERROR','OOPS!! Something went wrong\nReport this bug immediately')
+                updateRecordWin.destroy()
+                root.deiconify()
+                return
+
+            def sendUpdateComm(clist,primary,valprim,*args):
+
+                def checkColumnType():
+                    try:
+                        x = sqlcon.returnColType(tb_var.get())
+                        if x.tf:
+                            global columnType
+                            columnType = x.Msg
+                        else:
+                            messagebox.showerror('ERROR',x.Msg)
+                    except:
+                        messagebox.showerror('ERROR','OOPS!! Something went wrong!\nPlease Report this bug')
+                        return
+
+                def checkNull():
+                    try:
+                        x = sqlcon.returnNotNull(tb_var.get())
+                        if x.tf:
+                            global notnull
+                            notnull = x.Msg
+                        else:
+                            messagebox.showerror('ERROR',x.Msg)
+                    except:
+                        messagebox.showerror('ERROR','OOPS!! SOmething went wrong\nPlease report this bug')
+                        return
+
+                checkColumnType()
+                checkNull()
+                values = []
+                for i in range(len(recEntries)):
+                    e = recEntries[i]
+                    t = columnType[i]
+                    if i in notnull and (e.get()=='' or e.get()=='None' or e.get() == 'NULL'):
+                        messagebox.showerror('ERROR','Column no. '+str(i)+' can not be null')
+                        e.focus()
+                        return
+                    else:
+                        if t[:7]==b'varchar' or t[:4]==b'char' or t[:7]=='varchar' or t[:4]=='char':
+                            if not e.get()=='' or e.get()=='None' or e.get()=='NULL':
+                                values.append('\''+str(e.get())+'\'')
+                            else:
+                                values.append('NULL')
+                        elif t==b'date' or t=='date':
+                            if not e.get()=='' or e.get()=='None' or e.get()=='NULL':
+                                values.append('\''+str(e.get())+'\'')
+                            else:
+                                values.append('NULL')
+                        else:
+                            if not e.get()=='' or e.get()=='None' or e.get()=='NULL':
+                                values.append(str(e.get()))
+                            else:
+                                values.append(str(e.get()))
+
+                setlist=''
+                for i in range(len(values)):
+                    setlist += str(clist[i])+' = '+values[i]+', '
+
+                sndCom = sqlcon.upRecFunc(str(tb_var.get()),str(setlist),str(primary),str(valprim))
+                
+                if sndCom.tf:
+                    messagebox.showinfo('Success',sndCom.Msg)
+                    updateRecordWin.destroy()
+                    root.deiconify()
+                    actuallyUpdateRecords()
+                else:
+                    messagebox.showerror('Error',sndCom.Msg)
+                    updateRecordWin.destroy()
+                    root.deiconify()
+
+            ttk.Button(updateFrame,text='UPDATE',style='greenButtons.TButton',command=lambda: sendUpdateComm(clist=columnList,primary=primName,valprim=primValue)).grid(row=c,column=1,padx=10,pady=10)
+
+        except:
+            messagebox.showerror('ERROR','OOPS!! Something went wrong\nDid you select a table ?\nReport this bug if yes')
+            updateRecordWin.destroy()
+            root.deiconify()
+
+        try:
+            root.wait_window(updateRecordWin)
+            root.deiconify()
+        except:
+            return
     else:
         messagebox.showinfo('WARNING','Be Careful of the buttons you touch')
 #----------------------------------------------------------------------------------------------------------------------
@@ -745,7 +911,7 @@ def tbDelFunc(*args):
     confirm = messagebox.askyesno('Delete table ?¿','Are you sure you would like to delete the table ???')
     if confirm==True:
         try:
-            x = sqlcon.deltab(tb_listbox.get(tb_listbox.curselection()))
+            x = sqlcon.deltab(tb_var.get())
             if x.tf:
                 messagebox.showinfo('Success',x.Msg)
                 updateTbBox()
@@ -796,9 +962,16 @@ def updateRecordTree(*args):
         recTree['columns']=tuple(x)
         queryCol['values']=tuple(x)
         queryCol.current(0)
-        counter=1
-        for i in x:
-            recTree.heading(str(i),text=str(i),anchor='sw')
+        counter=0
+        widlist = sqlcon.returnMaxLengthCol(tb_var.get())
+        if widlist.tf:
+            for i in x:
+                recTree.heading(str(i),text=str(i),anchor='sw')
+                recTree.column(str(i),width=((list(widlist.Msg)[counter])*5)+30)
+                counter+=1
+        else:
+            messagebox.showerror('Error','OOPS! Something went wrong\nPlease report this bug immediately')
+
     except:
         messagebox.showerror("Error","Something Went Wrong \nPlease Report the bug")
 
@@ -808,6 +981,7 @@ def actuallyUpdateRecords(*args):
     x = sqlcon.showall(tb_var.get())
     for i in x:
         recTree.insert('','end',values=tuple(i))
+
 
 def updateRecords(*args):
     try:
@@ -823,9 +997,9 @@ def queryCall(*args):
         x = sqlcon.query(tb_var.get(),queryColS.get(),queryVar.get())
         if x.tf:
             clearRecs()
-            updateRecordTree()
-            for i in x.Msg:
-                recTree.insert('','end',values=tuple(i))
+            #updateRecordTree()
+            for msgval in x.Msg:
+                recTree.insert('','end',values=msgval)
         else:
             messagebox.showerror('ERROR',x.Msg)
     except:
@@ -835,11 +1009,11 @@ def commit(*args):
     y = messagebox.askyesno('COMMIT','Are you sure you would like to commit the changes ??')
     if y:
         try:
-            x=sqlcon.commitAll()
-            if x.tf:
-                messagebox.showinfo('Success',x.Msg)
+            x=sqlcon.commitall()
+            if x:
+                messagebox.showinfo('Success','Successfully committed changes')
             else:
-                messagebox.showerror('Error',x.Msg)
+                messagebox.showerror('Error','Could not commit')
         except:
             messagebox.showerror('ERROR','OOPS!! Something went wrong\nPlease report this bug')
     else:
@@ -1055,10 +1229,10 @@ addRecBtn.grid(row=0,column=0,pady=10,padx=10,sticky=(N,S,W,E))
 delRecBtn = ttk.Button(recConsole,text='DELETE RECORD',style='redButtons.TButton',command=delRecordCall)
 delRecBtn.grid(row=1,column=0,pady=10,padx=10,sticky=(N,S,W,E))
 
-upRecBtn = ttk.Button(recConsole,text='UPDATE RECORD',style='blueButtons.TButton')
+upRecBtn = ttk.Button(recConsole,text='UPDATE RECORD',style='blueButtons.TButton',command=updateRecordCall)
 upRecBtn.grid(row=2,column=0,pady=10,padx=10,sticky=(N,S,W,E))
 
-commitBtn = ttk.Button(recConsole,text='COMMIT',style='greenButtons.TButton',command=lambda: sqlcon.givcommand('COMMIT'))
+commitBtn = ttk.Button(recConsole,text='COMMIT',style='greenButtons.TButton',command=commit)
 commitBtn.grid(row=3,column=0,padx=10,pady=10,sticky=(N,S,W,E))
 
 
