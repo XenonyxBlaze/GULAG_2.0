@@ -289,9 +289,20 @@ def upRecFunc(table,values,prim,primvalue):
     try:
         cursor.execute('UPDATE '+table+' SET '+values[:-2]+' WHERE '+prim+' LIKE \''+primvalue+'\'')
         boolMsgClass.tf=True
-        boolMsgClass.Msg='Successfully added the record'
+        boolMsgClass.Msg='Successfully updated the record'
         return boolMsgClass
     except mycon.Error as e:
         boolMsgClass.tf = False
         boolMsgClass.Msg=e.msg
         return boolMsgClass
+
+def returnTableDefinition(t):
+    try:
+        colList=[]
+        cursor.execute('desc '+t)
+        for i in cursor:
+            print(i)
+            colList.append(i[0])
+        return colList
+    except mycon.Error as exc:
+        return [exc.msg]

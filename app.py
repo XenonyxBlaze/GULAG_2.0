@@ -983,12 +983,20 @@ def actuallyUpdateRecords(*args):
         recTree.insert('','end',values=tuple(i))
 
 
-def updateRecords(*args):
+def updateTableDesc():
+    try:
+        x=sqlcon.returnTableDefinition(tb_var.get())
+    except:
+        messagebox.showerror('ERROR','Something went wrong \nPlease report this bug')
+
+
+def selectTable(*args):
     try:
         global tb_var
         tb_var = StringVar()
         tb_var.set(tb_listbox.get(tb_listbox.curselection()))
         actuallyUpdateRecords()
+        updateTableDesc()
     except:
         messagebox.showerror('Error','Something went wrong \nPlease report this bug')
 
@@ -1141,8 +1149,8 @@ tb_listbox.grid(row=0,column=0,sticky=(N,E,W,S))
 tbScroller = ttk.Scrollbar(tb_frame,orient=VERTICAL,command=tb_listbox.yview)
 tbScroller.grid(row=0,column=1,sticky=(N,S,W,E))
 tb_listbox['yscrollcommand']=tbScroller.set
-tb_listbox.bind('<Double-1>', updateRecords)
-tb_listbox.bind('<Return>', updateRecords)
+tb_listbox.bind('<Double-1>', selectTable)
+tb_listbox.bind('<Return>', selectTable)
 
 tb_console = ttk.Frame(tb_frame)
 tb_console.grid(row=1,column=0,sticky=(N,E,W,S))
@@ -1191,11 +1199,6 @@ ttk.Entry(recQuery,textvariable=queryVar).grid(row=0,column=3,sticky=(W,E),padx=
 qicon = ImageTk.PhotoImage(Image.open('search.png'))
 ttk.Button(recQuery,image=qicon,style='greenButtons.TButton',command=queryCall).grid(row=0,column=4,sticky=W)
 
-#recColSelect = ttk.Frame(records_tab,style='dark.TFrame')
-#recColSelect.grid(row=1,column=0,sticky=(S,W,E,N))
-#ttk.Label(recColSelect,text='Select Columns :\t',style='smolLight.TLabel').grid(row=0,column=0,sticky=(S,W,E,N))
-
-
 
 
 
@@ -1242,6 +1245,10 @@ commitBtn.grid(row=3,column=0,padx=10,pady=10,sticky=(N,S,W,E))
 
 tbEditFrame = ttk.Frame(mainApp)
 mainApp.add(tbEditFrame,text='Edit Table')
+
+tableDesc = ttk.Frame(tbEditFrame,style='dark.TFrame',padding='3 3 3 3')
+tableDesc.grid(row=0,column=0,columnspan=3,sticky=(S,W,E,N),padx=5,pady=5)
+
 #----------------------------------------------------------------------------------------------------------------------
 
 
