@@ -4,3 +4,8 @@ GULAG 2.0 is a GUI based MySQL application developped in python using the tKinte
 	      Please feel free to give us a feedback and report any bugs that you encounter.
         <br><br>
         It is a big upgrade from the previous GulagPy which was a simple prison management web-app also developed in Python using the flask framework along with some basic csv file handling and ftplib library and was a huge failure due to server issues and wasn't flexible enough.
+<br><br>
+# USAGE
+Go in the app folder, find the 'GULAG.exe' executable app and launch it.
+
+For full project documentation go to https://gulag2.heliohost.org/docs.html
