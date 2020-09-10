@@ -7,5 +7,4 @@ GULAG 2.0 is a GUI based MySQL application developped in python using the tKinte
 <br><br>
 # USAGE
 Go in the app folder, find the 'GULAG.exe' executable app and launch it.
-
 For full project documentation go to https://gulag2.heliohost.org/docs.html
