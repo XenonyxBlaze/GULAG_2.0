@@ -42,7 +42,7 @@ def conWinCall():
 
     conWin = Toplevel()
     conWin.title('Connection')
-    conWin.iconbitmap('gulag.ico')
+    conWin.iconbitmap('icon/gulag.ico')
     conWin.resizable(False,False)
 
     conFrame=ttk.Frame(conWin,padding="3 3 3 3")
@@ -104,7 +104,7 @@ def bugRepWinCall():
 
     bugRepWin = Toplevel()
     bugRepWin.title('Report Bug')
-    bugRepWin.iconbitmap('gulag.ico')
+    bugRepWin.iconbitmap('icon/gulag.ico')
     bugRepWin.geometry('400x330')
     bugRepWin.resizable(False,False)
     bugRepWin.focus()
@@ -181,7 +181,7 @@ def feedWinCall():
 
     feedWin = Toplevel()
     feedWin.title('Feedback')
-    feedWin.iconbitmap('gulag.ico')
+    feedWin.iconbitmap('icon/gulag.ico')
     feedWin.geometry('410x300')
     feedWin.resizable(False,False)
 
@@ -237,7 +237,7 @@ def feedWinCall():
 #Documentation
 #----------------------------------------------------------------------------------------------------------------------
 def docsWin():
-    webbrowser.open_new_tab('https://www.xenonyx.heliohost.org')
+    webbrowser.open_new_tab('https://www.gulag2.heliohost.org')
 #----------------------------------------------------------------------------------------------------------------------
 
 
@@ -260,7 +260,7 @@ def dbCrWinCall():
 
     dbCrWin = Toplevel()
     dbCrWin.title('Create Database')
-    dbCrWin.iconbitmap('gulag.ico')
+    dbCrWin.iconbitmap('icon/gulag.ico')
     dbCrWin.focus()
 
     ttk.Label(dbCrWin,text='Enter Database Name\t:').grid(row=0,column=0,pady=2,padx=2)
@@ -311,7 +311,7 @@ def createTableFunc(*args):
     
     crTWin = Toplevel()
     crTWin.title('Table Creation Wizard')
-    crTWin.iconbitmap('gulag.ico')
+    crTWin.iconbitmap('icon/gulag.ico')
     crTWin.geometry('600x600')
     
     root.withdraw()
@@ -358,7 +358,7 @@ def createTableFunc(*args):
         crTWin.withdraw()
         addColWin = Toplevel()
         addColWin.title('Add Column')
-        addColWin.iconbitmap('gulag.ico')
+        addColWin.iconbitmap('icon/gulag.ico')
 
         addColFrame = ttk.Frame(addColWin,style='light.TFrame',padding='3 3 3 3')
         addColFrame.grid(row=0,column=0)
@@ -382,7 +382,7 @@ def createTableFunc(*args):
             if col_type_var.get() == 'Decimal':
                 colSizeWin = Toplevel()
                 colSizeWin.title('Column Config')
-                colSizeWin.iconbitmap('gulag.ico')
+                colSizeWin.iconbitmap('icon/gulag.ico')
                 addColWin.withdraw()
 
                 colSizeFrame = ttk.Frame(colSizeWin,style='light.TFrame')
@@ -413,7 +413,7 @@ def createTableFunc(*args):
             elif col_type_var.get() == 'Varchar' or col_type_var.get()=='Char' or col_type_var.get() == 'Integer':
                 colSizeWin = Toplevel()
                 colSizeWin.title('Column Config')
-                colSizeWin.iconbitmap('gulag.ico')
+                colSizeWin.iconbitmap('icon/gulag.ico')
                 addColWin.withdraw()
 
                 colSizeFrame = ttk.Frame(colSizeWin,style='light.TFrame')
@@ -494,7 +494,7 @@ def createTableFunc(*args):
 
         keyDefWin = Toplevel()
         keyDefWin.title('Define primary key')
-        keyDefWin.iconbitmap('gulag.ico')
+        keyDefWin.iconbitmap('icon/gulag.ico')
 
         colsList = list(colDict.keys())
 
@@ -604,7 +604,7 @@ def devWinCall():
     optionMenu.entryconfigure('Developer Console',state='disabled')
     devWin = Toplevel()
     devWin.title("DEVELOPER CONSOLE")
-    devWin.iconbitmap('gulag.ico')
+    devWin.iconbitmap('icon/gulag.ico')
     devWin.geometry('600x300')
 
     devFrame= ttk.Frame(devWin,style='dark.TFrame')
@@ -666,7 +666,7 @@ def addRecordCall(*args):
         addRecWin = Toplevel()
         addRecWin.title('Add Record')
         #addRecBtn['state'] = 'disabled'
-        addRecWin.iconbitmap('gulag.ico')
+        addRecWin.iconbitmap('icon/gulag.ico')
 
         root.withdraw()
 
@@ -820,7 +820,7 @@ def updateRecordCall(*args):
     if c:
         updateRecordWin = Toplevel()
         updateRecordWin.title('UPDATE RECORD')
-        updateRecordWin.iconbitmap('gulag.ico')
+        updateRecordWin.iconbitmap('icon/gulag.ico')
         updateRecordWin.columnconfigure(0,weight=1)
         updateRecordWin.rowconfigure(0,weight=1)
 
@@ -1123,7 +1123,7 @@ def dbrootreq(*args):
 
     requestWindow = Toplevel()
     requestWindow.title('DB Root Request')
-    requestWindow.iconbitmap('gulag.ico')
+    requestWindow.iconbitmap('icon/gulag.ico')
     requestWindow.geometry('400x330')
     requestWindow.resizable(False,False)
     requestWindow.focus()
@@ -1178,7 +1178,7 @@ def dbrootreq(*args):
 #Root Window
 #----------------------------------------------------------------------------------------------------------------------
 root = Tk()
-root.iconbitmap('gulag.ico')
+root.iconbitmap('icon/gulag.ico')
 root.title('GULAG 2.0 (Open Beta)')
 root.geometry('800x600')
 root.minsize(width=800,height=600)
@@ -1237,7 +1237,7 @@ content.grid(sticky=(N,E,W,S))
 Header = ttk.Frame(content,padding=(5,5,5,5),style='dark.TFrame')
 Header.grid(row=0,column=0,sticky=(N,E,W,S),padx=5,pady=0)
 
-logo = ImageTk.PhotoImage(Image.open('Gulag.png'))
+logo = ImageTk.PhotoImage(Image.open('img/Gulag.png'))
 ttk.Label(Header,image=logo,style='dark.TLabel').grid(row=0,column=0,sticky=W)
 ttk.Label(Header,text="GULAG 2.0",style='bigDark.TLabel').grid(row=0,column=1,sticky=E)
 
@@ -1336,7 +1336,7 @@ queryVar=StringVar()
 ttk.Label(recQuery,text='Search: ',style='smolLight.TLabel').grid(row=0,column=0,sticky=(S,W,E,N))
 ttk.Entry(recQuery,textvariable=queryVar).grid(row=0,column=3,sticky=(W,E),padx=10)
 
-qicon = ImageTk.PhotoImage(Image.open('search.png'))
+qicon = ImageTk.PhotoImage(Image.open('img/search.png'))
 ttk.Button(recQuery,image=qicon,style='greenButtons.TButton',command=queryCall).grid(row=0,column=4,sticky=W)
 
 
