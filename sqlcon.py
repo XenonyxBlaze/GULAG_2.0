@@ -154,7 +154,7 @@ def givcommand(command):
     try:
         cursor.execute(str(command))
         boolMsgClass.tf=True
-        boolMsgClass.Msg=str(cursor.fetchall())
+        boolMsgClass.Msg='Successfully completed command'
         return boolMsgClass
     except mycon.Error as e:
         boolMsgClass.tf = False
@@ -238,7 +238,6 @@ def returnPrimaryKey(tb):
 def deleteRecord(tb,p,v):
     try:
         comand = 'DELETE FROM '+str(tb)+' WHERE '+str(p)+' LIKE \''+str(v)+'\''
-        print(comand)
         cursor.execute(comand)
         boolMsgClass.tf = True
         boolMsgClass.Msg = 'Successfully deleted record!'
@@ -296,7 +295,7 @@ def upRecFunc(table,values,prim,primvalue):
         boolMsgClass.Msg=e.msg
         return boolMsgClass
 
-def returnTableDefinition(t):
+'''def returnTableDefinition(t):
     try:
         colList=[]
         cursor.execute('desc '+t)
@@ -305,4 +304,4 @@ def returnTableDefinition(t):
             colList.append(i[0])
         return colList
     except mycon.Error as exc:
-        return [exc.msg]
+        return [exc.msg]'''

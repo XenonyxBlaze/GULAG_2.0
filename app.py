@@ -15,7 +15,9 @@ By agreeing to read this code you are sacrificing your soul to satan
 because there's no way in hell that you'll be able to read it otherwise
 
 '''
+import feedback
 import sqlcon
+import webbrowser
 from tkinter import  *
 from tkinter import  ttk
 from tkinter import  font
@@ -48,12 +50,12 @@ def conWinCall():
     
     ttk.Label(conFrame,text='Enter Host\t:').grid(row=0,column=0)
     conHost = ttk.Entry(conFrame)
-    conHost.insert(0,'localhost')
+    conHost.insert(0,'johnny.heliohost.org')
     conHost.grid(row=0,column=1)
 
     ttk.Label(conFrame,text='Enter Username\t:').grid(row=1,column=0)
     conUsr = ttk.Entry(conFrame)
-    conUsr.insert(0,'root')
+    conUsr.insert(0,'aarav_')
     conUsr.focus()
     conUsr.grid(row=1,column=1)
 
@@ -103,8 +105,59 @@ def bugRepWinCall():
     bugRepWin = Toplevel()
     bugRepWin.title('Report Bug')
     bugRepWin.iconbitmap('gulag.ico')
-    bugRepWin.geometry('400x300')
+    bugRepWin.geometry('400x330')
     bugRepWin.resizable(False,False)
+    bugRepWin.focus()
+
+    bugRepFrame = ttk.Frame(bugRepWin,style='dark.TFrame')
+    bugRepFrame.grid(row=0,column=0,stick=(S,W,E,N))
+
+    ttk.Label(bugRepFrame,text='Bug Report',style='mediumDark.TLabel').grid(row=0,column=0,sticky=(W,E))
+
+    BugRepUsrName = ttk.Entry(bugRepFrame)
+    BugRepUsrName.insert(0,'Enter your Name')
+    BugRepUsrName.grid(row=1,column=0,pady=5,padx=5,sticky=(W,E))
+
+    BugRepUsrMail = ttk.Entry(bugRepFrame)
+    BugRepUsrMail.insert(0,'Enter your e-mail')
+    BugRepUsrMail.grid(row=2,column=0,pady=5,padx=5,sticky=(W,E))
+
+    BugRepTitle = ttk.Entry(bugRepFrame)
+    BugRepTitle.insert(0,'Enter a title (50 characters or less)')
+    BugRepTitle.grid(row=3,column=0,pady=5,padx=5,sticky=(W,E))
+
+    bugRepReport = Text(bugRepFrame,wrap='word',width=45,height=9)
+    bugRepReport.insert('end','Describe the bug in not more than 250 characters')
+    bugRepReport.grid(row=4,column=0,pady=5,padx=5,sticky=(W,E))
+
+    def bugRepSend(*args):
+        if ((not '@' in BugRepUsrMail.get()) or (not '.' in BugRepUsrMail.get()) or (' ' in BugRepUsrMail.get()) ):
+            messagebox.showerror('Error','Please provide a valid e-mail address so we can contact you')
+            BugRepUsrMail.focus()
+        elif BugRepUsrName.get() == '' or BugRepUsrName.get() == ' ' or BugRepUsrName.get() == None:
+            messagebox.showerror('Error','Please provide a name to that beautiful face :)')
+            BugRepUsrName.focus()
+        elif bugRepReport.get(1.0,'end') == '' or bugRepReport.get(1.0,'end') == ' ' or bugRepReport.get(1.0,'end') == None:
+            messagebox.showerror('Error','Do you even have to really report something ?')
+            bugRepReport.focus()
+        else:
+            try:
+                feedback.sendBugReport(BugRepUsrName.get(),BugRepUsrMail.get(),BugRepTitle.get(),bugRepReport.get(1.0,'end'))
+                messagebox.showinfo('Success','Thanks for reporting')
+                bugRepWin.destroy()
+            except:
+                messagebox.showinfo('Error','UH OH!! Something went wrong!! Can\'t believe the bug reporting system is bugged xD. Please contact aarav@gulag2.heliohost.org')
+                bugRepWin.destroy()
+
+    bugRepBtn = ttk.Button(bugRepFrame,text='SUBMIT',style='greenButtons.TButton',command=bugRepSend)
+    bugRepBtn.grid(row=5,column=0,pady=5,padx=5,sticky=(E))
+
+    bugRepWin.rowconfigure(0,weight=1)
+    bugRepWin.columnconfigure(0,weight=1)
+    
+    '''bugRepFrame.rowconfigure(0,weight=0)
+                bugRepWin.columnconfigure(0,weight=100)
+                bugRepFrame.rowconfigure(1,weight=0)'''
 
     root.wait_window(bugRepWin)
     try:
@@ -129,8 +182,41 @@ def feedWinCall():
     feedWin = Toplevel()
     feedWin.title('Feedback')
     feedWin.iconbitmap('gulag.ico')
-    feedWin.geometry('400x300')
+    feedWin.geometry('410x300')
     feedWin.resizable(False,False)
+
+    feedbackFrame = ttk.Frame(feedWin,style='dark.TFrame')
+    feedbackFrame.grid(row=0,column=0,sticky=(S,W,E,N))
+
+    ttk.Label(feedbackFrame,text='FEEDBACK',style='mediumDark.TLabel').grid(row=0,column=0,sticky=(W,E))
+
+    ttk.Label(feedbackFrame,text='Enter your name :',style='smolDark.TLabel').grid(row=1,column=0,sticky=(W,E),padx=5)
+    feedbackUsrName = ttk.Entry(feedbackFrame)
+    feedbackUsrName.grid(row=1,column=1,sticky=(W,E),padx=5,pady=5)
+    feedbackUsrName.focus()
+
+    ttk.Label(feedbackFrame,text='Please use the slider to show\nhow much you enjoyed our app',style='smolDark.TLabel').grid(row=2,column=0,padx=5,sticky=W)
+    feedbackRating = Scale(feedbackFrame, length=200, from_=1, to=5,orient=HORIZONTAL)
+    feedbackRating.grid(row=2,column=1,sticky=(E),padx=5,pady=1)
+
+    ttk.Label(feedbackFrame,text='Please describe your experience or give suggestions:',style='smolDark.TLabel').grid(row=3,column=0,sticky=(W),columnspan=2,padx=5)
+    feedbackNote = Text(feedbackFrame,wrap='word',width=45,height=7)
+    feedbackNote.grid(row=4,column=0,columnspan=2,sticky=(W,E),padx=5)
+
+    def feedbackSend(*args):
+        try:
+            feedback.sendFeedback(feedbackUsrName.get(),feedbackRating.get(),feedbackNote.get(1.0,'end'))
+            messagebox.showinfo('Success','Successfully sent feedback')
+            feedWin.destroy()
+        except:
+            messagebox.showerror('error','Uh!OH! Something went wrong! Please report this bug')
+            feedWin.destroy()
+
+    feedbackSubmit = ttk.Button(feedbackFrame,text='SUBMIT',style='greenButtons.TButton',command=feedbackSend)
+    feedbackSubmit.grid(row=5,column=1,sticky=E,padx=5,pady=5)
+
+    feedWin.rowconfigure(0,weight=1)
+    feedWin.columnconfigure(0,weight=1)
 
     root.wait_window(feedWin)
     try:
@@ -151,10 +237,7 @@ def feedWinCall():
 #Documentation
 #----------------------------------------------------------------------------------------------------------------------
 def docsWin():
-    Documentation = Toplevel()
-    Documentation.title('Documentation')
-    Documentation.iconbitmap('gulag.ico')
-    Documentation.geometry('900x500')
+    webbrowser.open_new_tab('https://www.xenonyx.heliohost.org')
 #----------------------------------------------------------------------------------------------------------------------
 
 
@@ -297,10 +380,10 @@ def createTableFunc(*args):
 
         def selectType(*args):
             if col_type_var.get() == 'Decimal':
-                addColWin.withdraw()
                 colSizeWin = Toplevel()
                 colSizeWin.title('Column Config')
                 colSizeWin.iconbitmap('gulag.ico')
+                addColWin.withdraw()
 
                 colSizeFrame = ttk.Frame(colSizeWin,style='light.TFrame')
                 colSizeFrame.grid(row=0,column=0)
@@ -328,10 +411,10 @@ def createTableFunc(*args):
                     return
 
             elif col_type_var.get() == 'Varchar' or col_type_var.get()=='Char' or col_type_var.get() == 'Integer':
-                addColWin.withdraw()
                 colSizeWin = Toplevel()
                 colSizeWin.title('Column Config')
                 colSizeWin.iconbitmap('gulag.ico')
+                addColWin.withdraw()
 
                 colSizeFrame = ttk.Frame(colSizeWin,style='light.TFrame')
                 colSizeFrame.grid(row=0,column=0)
@@ -423,7 +506,13 @@ def createTableFunc(*args):
         prim.grid(row=0,column=1,sticky=(S,W,E,N),pady=10)
         prim.focus()
 
-        ttk.Button(keyFrame,text='OK',command=keyDefWin.destroy).grid(row=1,column=1)
+        def checkPrimNull(*args):
+            if prim_var.get() == '' or prim_var.get() == None or prim_var.get() == ' ':
+                messagebox.showerror('Error','Primary Key can\'t be null')
+            else:
+                keyDefWin.destroy()
+
+        ttk.Button(keyFrame,text='OK',command=checkPrimNull).grid(row=1,column=1)
 
         crTWin.wait_window(keyDefWin)
         try:
@@ -467,12 +556,14 @@ def createTableFunc(*args):
                 x = sqlcon.givcommand(col_comm)
                 if x.tf:
                     messagebox.showinfo('Success','Table created successfully')
+                    crTWin.destroy()
+                    updateTbBox()
                 else:
-                    messagebox.showerror('ERROR',x.Msg)
+                    messagebox.showerror('ERROR','Command: '+col_comm+'\n\n\n'+x.Msg)
+                    createTableButton['state']='normal'
             except:
                 messagebox.showerror("ERROR",'Error in creating table')
-            crTWin.destroy()
-            updateTbBox()
+                createTableButton['state']='normal'
         except:
             messagebox.showerror("ERROR","Something went wrong! Please report this bug")
             crTWin.destroy()
@@ -628,7 +719,7 @@ def addRecordCall(*args):
                     e.focus()
                     return
                 else:
-                    if t[:7]==b'varchar' or t[:4]==b'char' or t[:7]=='varchar' or t[:4]=='char':
+                    if t[:7]==b'varchar' or t[:4]==b'char' or t[:7]=='varchar' or t[:4]=='char' or t[:4] == 'text':
                         if not e.get()=='':
                             values += '\''+str(e.get())+'\''+','
                         else:
@@ -983,12 +1074,12 @@ def actuallyUpdateRecords(*args):
         recTree.insert('','end',values=tuple(i))
 
 
-def updateTableDesc():
+'''def updateTableDesc():
     try:
         x=sqlcon.returnTableDefinition(tb_var.get())
     except:
         messagebox.showerror('ERROR','Something went wrong \nPlease report this bug')
-
+'''
 
 def selectTable(*args):
     try:
@@ -996,7 +1087,7 @@ def selectTable(*args):
         tb_var = StringVar()
         tb_var.set(tb_listbox.get(tb_listbox.curselection()))
         actuallyUpdateRecords()
-        updateTableDesc()
+#        updateTableDesc()
     except:
         messagebox.showerror('Error','Something went wrong \nPlease report this bug')
 
@@ -1027,6 +1118,53 @@ def commit(*args):
     else:
         messagebox.showinfo('WARNING','Be Careful of the buttons you touch')
 
+def dbrootreq(*args):
+    helpMenu.entryconfigure('Request database root',state='disabled')
+
+    requestWindow = Toplevel()
+    requestWindow.title('DB Root Request')
+    requestWindow.iconbitmap('gulag.ico')
+    requestWindow.geometry('400x330')
+    requestWindow.resizable(False,False)
+    requestWindow.focus()
+
+    requestFrame = ttk.Frame(requestWindow,style='light.TFrame')
+    requestFrame.grid(row=0,column=0,sticky=(S,W,E,N))
+
+    requestName = ttk.Entry(requestFrame)
+    requestName.insert(0,'Enter your name')
+    requestName.grid(row=0,column=0,sticky=(W),padx=5,pady=5)
+
+    requestEmail = ttk.Entry(requestFrame)
+    requestEmail.insert(0,'Enter your email')
+    requestEmail.grid(row=1,column=0,sticky=(W),padx=5,pady=5)
+
+    requestReason = Text(requestFrame,wrap='word',width=45,height=7)
+    requestReason.insert(1.0,'Give us a valid reason why we should give you access to the server root account (under 250 characters)')
+    requestReason.grid(row=2,column=0,sticky=(W,E),padx=5)
+
+    def submitRequest(*args):
+        try:
+            feedback.sendRootRequest(requestName.get(),requestEmail.get(),requestReason.get(1.0,'end'))
+            messagebox.showinfo('Success','Successfully sent request. An admin will contact you shortly')
+            requestWindow.destroy()
+        except:
+            messagebox.showerror('Error','Something went wrong \nPlease report this bug')
+            requestWindow.destroy()
+
+    requestSubmit = ttk.Button(requestFrame,text='SUBMIT',style='greenButtons.TButton',command=submitRequest)
+    requestSubmit.grid(row=3,column=0,sticky=E,padx=5)
+
+    requestWindow.rowconfigure(0,weight=1)
+    requestWindow.columnconfigure(0,weight=1)
+
+    root.wait_window(requestWindow)
+    try:
+        helpMenu.entryconfigure('Request database root',state='normal')
+    except:
+        return
+
+
 #----------------------------------------------------------------------------------------------------------------------
 
 
@@ -1041,7 +1179,7 @@ def commit(*args):
 #----------------------------------------------------------------------------------------------------------------------
 root = Tk()
 root.iconbitmap('gulag.ico')
-root.title('GULAG 2.0 (development)')
+root.title('GULAG 2.0 (Open Beta)')
 root.geometry('800x600')
 root.minsize(width=800,height=600)
 #----------------------------------------------------------------------------------------------------------------------
@@ -1079,6 +1217,8 @@ styleHandle.configure('light.TLabel',background='#a9aaab',foreground='#4a4d4f')
 
 styleHandle.configure('dark.TFrame',background='#4a4d4f',foreground='#a9aaab')
 styleHandle.configure('light.TFrame',background='#a9aaab',foreground='#4a4d4f')
+
+#styleHandle.configure('Horizontal.dark.TScale',background='#4a4d4f',lightcolor='#a9aaab')
 
 #----------------------------------------------------------------------------------------------------------------------
 
@@ -1243,11 +1383,11 @@ commitBtn.grid(row=3,column=0,padx=10,pady=10,sticky=(N,S,W,E))
 
 
 
-tbEditFrame = ttk.Frame(mainApp)
+'''tbEditFrame = ttk.Frame(mainApp)
 mainApp.add(tbEditFrame,text='Edit Table')
 
 tableDesc = ttk.Frame(tbEditFrame,style='dark.TFrame',padding='3 3 3 3')
-tableDesc.grid(row=0,column=0,columnspan=3,sticky=(S,W,E,N),padx=5,pady=5)
+tableDesc.grid(row=0,column=0,columnspan=3,sticky=(S,W,E,N),padx=5,pady=5)'''
 
 #----------------------------------------------------------------------------------------------------------------------
 
@@ -1284,6 +1424,10 @@ records_tab.rowconfigure(1,weight=99)
 
 recFrame.columnconfigure(0,weight=1)
 recFrame.rowconfigure(0,weight=1)
+
+'''tbEditFrame.columnconfigure(0,weight=1)
+tbEditFrame.rowconfigure(0,weight=1)'''
+
 #----------------------------------------------------------------------------------------------------------------------
 
 
@@ -1301,16 +1445,21 @@ menubarRoot = Menu(root)
 
 optionMenu = Menu(menubarRoot)
 feedbackMenu = Menu(menubarRoot)
+helpMenu = Menu(menubarRoot)
 
 menubarRoot.add_cascade(menu=optionMenu,label='Options')
 menubarRoot.add_cascade(menu=feedbackMenu, label='Feedback')
-menubarRoot.add_command(label='Help', command=docsWin)
+menubarRoot.add_cascade(menu=helpMenu,label='Help')
 
 optionMenu.add_command(label='Connect',command=conWinCall)
 optionMenu.add_command(label='Developer Console',command=devWinCall)
 
 feedbackMenu.add_command(label='Report Bug',command=bugRepWinCall)
 feedbackMenu.add_command(label='Provide Feedback',command=feedWinCall)
+
+helpMenu.add_command(label='GULAG Docs',command=docsWin)
+helpMenu.add_command(label='Join help server (Discord)')
+helpMenu.add_command(label='Request database root',command=dbrootreq)
 
 root['menu']=menubarRoot
 #----------------------------------------------------------------------------------------------------------------------
