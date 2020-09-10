@@ -237,7 +237,7 @@ def feedWinCall():
 #Documentation
 #----------------------------------------------------------------------------------------------------------------------
 def docsWin():
-    webbrowser.open_new_tab('https://www.gulag2.heliohost.org')
+    webbrowser.open_new_tab('https://www.gulag2.heliohost.org/docs.html')
 #----------------------------------------------------------------------------------------------------------------------
 
 
@@ -1118,6 +1118,9 @@ def commit(*args):
     else:
         messagebox.showinfo('WARNING','Be Careful of the buttons you touch')
 
+def discordInvite(*args):
+    webbrowser.open_new_tab('https://discord.gg/CE9CafD')
+
 def dbrootreq(*args):
     helpMenu.entryconfigure('Request database root',state='disabled')
 
@@ -1458,7 +1461,7 @@ feedbackMenu.add_command(label='Report Bug',command=bugRepWinCall)
 feedbackMenu.add_command(label='Provide Feedback',command=feedWinCall)
 
 helpMenu.add_command(label='GULAG Docs',command=docsWin)
-helpMenu.add_command(label='Join help server (Discord)')
+helpMenu.add_command(label='Join help server (Discord)',command=discordInvite)
 helpMenu.add_command(label='Request database root',command=dbrootreq)
 
 root['menu']=menubarRoot
