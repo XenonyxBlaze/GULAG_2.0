@@ -1,18 +1,15 @@
 '''
 
 GULAG 2.0
-GULAG 2.0 is a tkinter based GUI ver. of the original GulagPy with much more
-functionality using MySQL.
+GULAG 2.0 is a tkinter based GUI MySQL interface
 
-Authors: Aarav Rajput, Dhruv Arora, Abheek Tripathi
+Authors: Team Sigma Exousia :- Aarav Rajput 12-H, Dhruv Arora 12-H, Abheek Tripathi 12-G
 
 Join The GULAG discord server for programming related doubt solving : https://discord.gg/CE9CafD
-Website: https://gulag.heliohost.org
+Website: https://gulag2.heliohost.org
 
 Gulag 2.0 is completely open-source and the code can be used in any way :)
 
-By agreeing to read this code you are sacrificing your soul to satan
-because there's no way in hell that you'll be able to read it otherwise
 
 '''
 import feedback
@@ -27,12 +24,6 @@ from PIL import ImageTk,Image
 
 
 
-
-
-
-
-
-
 #Connection Window
 #----------------------------------------------------------------------------------------------------------------------
 def conWinCall():
@@ -42,7 +33,10 @@ def conWinCall():
 
     conWin = Toplevel()
     conWin.title('Connection')
-    conWin.iconbitmap('icon/gulag.ico')
+    
+    if sys.platform.startswith('win') :
+        conWin.iconbitmap('icon/gulag.ico')
+        
     conWin.resizable(False,False)
 
     conFrame=ttk.Frame(conWin,padding="3 3 3 3")
@@ -89,14 +83,6 @@ def conWinCall():
 #----------------------------------------------------------------------------------------------------------------------
 
 
-
-
-
-
-
-
-
-
 #Bug Report Window
 #----------------------------------------------------------------------------------------------------------------------
 def bugRepWinCall():
@@ -104,7 +90,8 @@ def bugRepWinCall():
 
     bugRepWin = Toplevel()
     bugRepWin.title('Report Bug')
-    bugRepWin.iconbitmap('icon/gulag.ico')
+    if sys.platform.startswith('win'):
+        bugRepWin.iconbitmap('icon/gulag.ico')
     bugRepWin.geometry('400x330')
     bugRepWin.resizable(False,False)
     bugRepWin.focus()
@@ -135,10 +122,10 @@ def bugRepWinCall():
             messagebox.showerror('Error','Please provide a valid e-mail address so we can contact you')
             BugRepUsrMail.focus()
         elif BugRepUsrName.get() == '' or BugRepUsrName.get() == ' ' or BugRepUsrName.get() == None:
-            messagebox.showerror('Error','Please provide a name to that beautiful face :)')
+            messagebox.showerror('Error','Please provide a name')
             BugRepUsrName.focus()
         elif bugRepReport.get(1.0,'end') == '' or bugRepReport.get(1.0,'end') == ' ' or bugRepReport.get(1.0,'end') == None:
-            messagebox.showerror('Error','Do you even have to really report something ?')
+            messagebox.showerror('Error','Do you even have to really report something ?\nERROR: BLANK Bug Report not accepted ')
             bugRepReport.focus()
         else:
             try:
@@ -146,7 +133,7 @@ def bugRepWinCall():
                 messagebox.showinfo('Success','Thanks for reporting')
                 bugRepWin.destroy()
             except:
-                messagebox.showinfo('Error','UH OH!! Something went wrong!! Can\'t believe the bug reporting system is bugged xD. Please contact aarav@gulag2.heliohost.org')
+                messagebox.showinfo('Error','UH OH!! Something went wrong!! Can\'t believe the bug reporting system is bugged xD. Please contact via email : aarav@gulag2.heliohost.org')
                 bugRepWin.destroy()
 
     bugRepBtn = ttk.Button(bugRepFrame,text='SUBMIT',style='greenButtons.TButton',command=bugRepSend)
@@ -166,14 +153,6 @@ def bugRepWinCall():
         return
 #----------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
 #Feedback Window
 #----------------------------------------------------------------------------------------------------------------------
 def feedWinCall():
@@ -181,7 +160,8 @@ def feedWinCall():
 
     feedWin = Toplevel()
     feedWin.title('Feedback')
-    feedWin.iconbitmap('icon/gulag.ico')
+    if sys.platform.startswith('win'):
+        feedWin.iconbitmap('icon/gulag.ico')
     feedWin.geometry('410x300')
     feedWin.resizable(False,False)
 
@@ -195,7 +175,7 @@ def feedWinCall():
     feedbackUsrName.grid(row=1,column=1,sticky=(W,E),padx=5,pady=5)
     feedbackUsrName.focus()
 
-    ttk.Label(feedbackFrame,text='Please use the slider to show\nhow much you enjoyed our app',style='smolDark.TLabel').grid(row=2,column=0,padx=5,sticky=W)
+    ttk.Label(feedbackFrame,text='Please use the slider to rate\nour app out of 5',style='smolDark.TLabel').grid(row=2,column=0,padx=5,sticky=W)
     feedbackRating = Scale(feedbackFrame, length=200, from_=1, to=5,orient=HORIZONTAL)
     feedbackRating.grid(row=2,column=1,sticky=(E),padx=5,pady=1)
 
@@ -225,30 +205,11 @@ def feedWinCall():
         return
 #----------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
-
 #Documentation
 #----------------------------------------------------------------------------------------------------------------------
 def docsWin():
     webbrowser.open_new_tab('https://www.gulag2.heliohost.org/docs.html')
 #----------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
 
 #Database Creation
 #----------------------------------------------------------------------------------------------------------------------
@@ -260,7 +221,9 @@ def dbCrWinCall():
 
     dbCrWin = Toplevel()
     dbCrWin.title('Create Database')
-    dbCrWin.iconbitmap('icon/gulag.ico')
+    if sys.platform.startswith('win') :
+        dbCrWin.iconbitmap('icon/gulag.ico')
+
     dbCrWin.focus()
 
     ttk.Label(dbCrWin,text='Enter Database Name\t:').grid(row=0,column=0,pady=2,padx=2)
@@ -286,15 +249,7 @@ def dbCrWinCall():
 #----------------------------------------------------------------------------------------------------------------------
 
 
-
-
-
-
-
-
-
-
-#Table Creation
+#Table Creation aka the most complicated and the most messy code I've ever written
 #----------------------------------------------------------------------------------------------------------------------        
 def createTableFunc(*args):
 
@@ -305,13 +260,12 @@ def createTableFunc(*args):
     global colDict
     colDict={}
 
-    messagebox.showinfo('WARNING','This module is currently incapable of detecting and fixing user errors so kindly use it with caution')
-    
-    #crtbbtn['state']='disabled'
+    messagebox.showinfo('WARNING','This module isn\'t 100% bug free so kindly use it with caution.')
     
     crTWin = Toplevel()
     crTWin.title('Table Creation Wizard')
-    crTWin.iconbitmap('icon/gulag.ico')
+    if sys.platform.startswith('win'):
+        crTWin.iconbitmap('icon/gulag.ico')
     crTWin.geometry('600x600')
     
     root.withdraw()
@@ -321,10 +275,12 @@ def createTableFunc(*args):
 
     ttk.Label(crTFrame,text='Enter Table Name',style='mediumDark.TLabel').grid(row=0,column=0)
     
-    tab_name_var = StringVar()
+    tab_name_var = StringVar() #Name of the table to be created
     tabName = ttk.Entry(crTFrame,textvariable=tab_name_var)
     tabName.grid(row=0,column=1)
     tabName.focus()
+    
+    #Display tree for table description that will be used to create the table when given the command
 
     colFrame = ttk.Frame(crTFrame,style='light.TFrame',padding='10 10 10 10')
     colFrame.grid(row=1,column=0,columnspan=2,sticky=(S,W,E,N))
@@ -352,13 +308,16 @@ def createTableFunc(*args):
 
     colConsole = ttk.Frame(crTFrame,style='dark.TFrame')
     colConsole.grid(row=4,column=0,padx = 10 , pady = 5,columnspan=3)
+    
+    #column creation wizard
 
     def addColWinCall():
         messagebox.showinfo('WARNING','This module is currently incapable of detecting and fixing user errors so kindly use it with caution')
         crTWin.withdraw()
         addColWin = Toplevel()
-        addColWin.title('Add Column')
-        addColWin.iconbitmap('icon/gulag.ico')
+        addColWin.title('Column Creation')
+        if sys.platform.startswith('win'):
+            addColWin.iconbitmap('icon/gulag.ico')
 
         addColFrame = ttk.Frame(addColWin,style='light.TFrame',padding='3 3 3 3')
         addColFrame.grid(row=0,column=0)
@@ -379,15 +338,17 @@ def createTableFunc(*args):
         col_type_var = StringVar()
 
         def selectType(*args):
-            if col_type_var.get() == 'Decimal':
-                colSizeWin = Toplevel()
-                colSizeWin.title('Column Config')
+            colSizeWin = Toplevel()
+            colSizeWin.title('Column Config')
+            if sys.platform.startwith('win'):
                 colSizeWin.iconbitmap('icon/gulag.ico')
-                addColWin.withdraw()
+                    
+            addColWin.withdraw()
 
-                colSizeFrame = ttk.Frame(colSizeWin,style='light.TFrame')
-                colSizeFrame.grid(row=0,column=0)
-
+            colSizeFrame = ttk.Frame(colSizeWin,style='light.TFrame')
+            colSizeFrame.grid(row=0,column=0)
+            if col_type_var.get() == 'Decimal':
+                
                 global col_dec_tot
                 col_dec_tot = StringVar()
 
@@ -411,14 +372,7 @@ def createTableFunc(*args):
                     return
 
             elif col_type_var.get() == 'Varchar' or col_type_var.get()=='Char' or col_type_var.get() == 'Integer':
-                colSizeWin = Toplevel()
-                colSizeWin.title('Column Config')
-                colSizeWin.iconbitmap('icon/gulag.ico')
-                addColWin.withdraw()
-
-                colSizeFrame = ttk.Frame(colSizeWin,style='light.TFrame')
-                colSizeFrame.grid(row=0,column=0)
-
+                
                 global col_size
                 col_size = StringVar()
 
@@ -494,7 +448,7 @@ def createTableFunc(*args):
 
         keyDefWin = Toplevel()
         keyDefWin.title('Define primary key')
-        keyDefWin.iconbitmap('icon/gulag.ico')
+        #keyDefWin.iconbitmap('icon/gulag.ico')
 
         colsList = list(colDict.keys())
 
@@ -604,7 +558,7 @@ def devWinCall():
     optionMenu.entryconfigure('Developer Console',state='disabled')
     devWin = Toplevel()
     devWin.title("DEVELOPER CONSOLE")
-    devWin.iconbitmap('icon/gulag.ico')
+    #devWin.iconbitmap('icon/gulag.ico')
     devWin.geometry('600x300')
 
     devFrame= ttk.Frame(devWin,style='dark.TFrame')
@@ -666,7 +620,7 @@ def addRecordCall(*args):
         addRecWin = Toplevel()
         addRecWin.title('Add Record')
         #addRecBtn['state'] = 'disabled'
-        addRecWin.iconbitmap('icon/gulag.ico')
+        #addRecWin.iconbitmap('icon/gulag.ico')
 
         root.withdraw()
 
@@ -820,7 +774,7 @@ def updateRecordCall(*args):
     if c:
         updateRecordWin = Toplevel()
         updateRecordWin.title('UPDATE RECORD')
-        updateRecordWin.iconbitmap('icon/gulag.ico')
+        #updateRecordWin.icop('icon/gulag.ico')
         updateRecordWin.columnconfigure(0,weight=1)
         updateRecordWin.rowconfigure(0,weight=1)
 
@@ -1126,7 +1080,7 @@ def dbrootreq(*args):
 
     requestWindow = Toplevel()
     requestWindow.title('DB Root Request')
-    requestWindow.iconbitmap('icon/gulag.ico')
+    #requestWindow.iconbitmap('icon/gulag.ico')
     requestWindow.geometry('400x330')
     requestWindow.resizable(False,False)
     requestWindow.focus()
@@ -1167,33 +1121,20 @@ def dbrootreq(*args):
     except:
         return
 
-
 #----------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
 
 #Root Window
 #----------------------------------------------------------------------------------------------------------------------
 root = Tk()
-root.iconbitmap('icon/gulag.ico')
-root.title('GULAG 2.0 (Open Beta)')
+if sys.platform.startswith('win') :
+    root.iconbitmap('icon/gulag.ico')
+else:
+    alt_icon= PhotoImage(file='icon/gulag.gif')
+    root.call('wm','iconphoto',root._w,alt_icon)
+root.title('GULAG 2.0')
 root.geometry('800x600')
 root.minsize(width=800,height=600)
 #----------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
 
 #Styles Handling
 #----------------------------------------------------------------------------------------------------------------------
@@ -1225,14 +1166,7 @@ styleHandle.configure('light.TFrame',background='#a9aaab',foreground='#4a4d4f')
 
 #----------------------------------------------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-#TORMENT OF MY BRAIN [DO NOT TRY TO MAKE A SENSE OUT OF IT // IT DOESN'T]
+#GUI DEFINITIONS
 #----------------------------------------------------------------------------------------------------------------------
 content = ttk.Frame(root,style='dark.TFrame')
 content.grid(sticky=(N,E,W,S))
@@ -1247,20 +1181,9 @@ ttk.Label(Header,text="GULAG 2.0",style='bigDark.TLabel').grid(row=0,column=1,st
 Body = ttk.Frame(content,width=590,height=350,style='light.TFrame')
 Body.grid(row=1,column=0,padx=10,pady=5,sticky=(N,E,W,S))
 
-
-
-
-
-
-
-
-
-
+#TOP PANE :- Databases & Tables column
 top_pane = ttk.Frame(Body)
 top_pane.grid(row=0,column=0,columnspan=2,sticky=(N,E,W,S))
-
-
-
 
 db_frame = ttk.Labelframe(top_pane, text='Databases',padding='3 3 3 3')
 db_frame.grid(row=0,column=0,sticky=(S,W,E,N),padx=5)
@@ -1280,9 +1203,6 @@ crdbbtn = ttk.Button(db_console,text='CREATE',style='greenButtons.TButton', comm
 crdbbtn.grid(row=0,column=0,padx=2,pady=2)
 drdbbtn = ttk.Button(db_console,text='DROP',style='redButtons.TButton', command=dbDropFunc)
 drdbbtn.grid(row=0,column=1,padx=2,pady=2)
-
-
-
 
 tb_frame = ttk.Labelframe(top_pane, text='Tables',padding='3 3 3 3')
 tb_frame.grid(row=0,column=1,sticky=(S,W,E,N),padx=5)
@@ -1305,22 +1225,10 @@ deltbbtn.grid(row=0,column=1,padx=2,pady=2)
 truntbbtn = ttk.Button(tb_console,text='TRUNCATE',style='blueButtons.TButton',command=tbTruncFunc)
 truntbbtn.grid(row=0,column=2,padx=2,pady=2)
 
-
-
-
-
-
-
-
-
+#Main APP
 
 mainApp = ttk.Notebook(Body)
 mainApp.grid(row=1,column=0,sticky=(N,E,W,S))
-
-
-
-
-
 
 records_tab = ttk.Frame(mainApp)
 mainApp.add(records_tab,text='Records')
@@ -1342,11 +1250,6 @@ ttk.Entry(recQuery,textvariable=queryVar).grid(row=0,column=3,sticky=(W,E),padx=
 qicon = ImageTk.PhotoImage(Image.open('img/search.png'))
 ttk.Button(recQuery,image=qicon,style='greenButtons.TButton',command=queryCall).grid(row=0,column=4,sticky=W)
 
-
-
-
-
-
 recFrame = ttk.Frame(records_tab,style='light.TFrame',padding='3 3 3 3')
 recFrame.grid(row=1,column=0,sticky=(N,S,W,E))
 
@@ -1361,10 +1264,6 @@ recTree['yscrollcommand']=treeScroll.set
 treeHScroll = ttk.Scrollbar(recFrame,orient=HORIZONTAL,command=recTree.xview)
 treeHScroll.grid(row=1,column=0,sticky=(E,W))
 recTree['xscrollcommand']=treeHScroll.set
-
-
-
-
 
 recConsole = ttk.Frame(records_tab,style='dark.TFrame')
 recConsole.grid(row=1,column=1,sticky=(N,S,W,E))
@@ -1381,27 +1280,16 @@ upRecBtn.grid(row=2,column=0,pady=10,padx=10,sticky=(N,S,W,E))
 commitBtn = ttk.Button(recConsole,text='COMMIT',style='greenButtons.TButton',command=commit)
 commitBtn.grid(row=3,column=0,padx=10,pady=10,sticky=(N,S,W,E))
 
-
-
-
-
-
-'''tbEditFrame = ttk.Frame(mainApp)
+tbEditFrame = ttk.Frame(mainApp)
 mainApp.add(tbEditFrame,text='Edit Table')
 
 tableDesc = ttk.Frame(tbEditFrame,style='dark.TFrame',padding='3 3 3 3')
-tableDesc.grid(row=0,column=0,columnspan=3,sticky=(S,W,E,N),padx=5,pady=5)'''
+tableDesc.grid(row=0,column=0,columnspan=3,sticky=(S,W,E,N),padx=5,pady=5)
+uc_img = ImageTk.PhotoImage(Image.open('img/uc.jpeg'))
+ttk.Label(tbEditFrame,image=uc_img).grid(row=0,column=0,columnspan=3,sticky=(S,W,E,N))
+ttk.Label(tbEditFrame,text='Sorry but this section of the program is still under development.\nOur team will provide this feature very soon.',style='smolLight.TLabel').grid(row=1,column=0,columnspan=3,sticky=(S,W,E,N))
 
 #----------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
 
 #Window Resizing Magic
 #----------------------------------------------------------------------------------------------------------------------
@@ -1432,13 +1320,6 @@ recFrame.rowconfigure(0,weight=1)
 tbEditFrame.rowconfigure(0,weight=1)'''
 
 #----------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
 
 
 #Menubar Magic
