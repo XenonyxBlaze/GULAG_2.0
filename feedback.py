@@ -1,6 +1,6 @@
 import mysql.connector as mysqlcon
 
-connection = mysqlcon.connect(host='johnny.heliohost.org',user='aarav_admin',password='gulagADMIN123')
+connection = mysqlcon.connect(host='johnny.heliohost.org',user='aarav_admin',password='Xx.GulagROOT123')
 
 def sendBugReport(name,email,title,bugReport):
 
